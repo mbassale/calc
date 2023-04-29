@@ -1,7 +1,42 @@
 #include "Lexer.h"
+#include "Parser.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/InitLLVM.h"
 #include "llvm/Support/raw_ostream.h"
+
+class ASTPrinter : public ASTVisitor
+{
+public:
+  void visit(AST &ast) override
+  {
+    llvm::outs() << "AST\n";
+  }
+  void visit(Expr &expr) override
+  {
+    llvm::outs() << "Expr\n";
+  }
+  void visit(Factor &factor) override
+  {
+    llvm::outs() << "Factor: " << factor.getValue() << "\n";
+  }
+  void visit(BinaryOp &binOp) override
+  {
+    llvm::outs() << "BinaryOp: " << (int)binOp.getOp() << "\n";
+    auto* left = binOp.getLeft();
+    if (left) {
+      left->accept(*this);
+    }
+    auto* right = binOp.getRight();
+    if (right) {
+      right->accept(*this);
+    }
+  }
+  void visit(WithDecl &withDecl) override
+  {
+    llvm::outs() << "WithDecl\n";
+    withDecl.getExpr()->accept(*this);
+  }
+};
 
 static llvm::cl::opt<std::string>
     Input(llvm::cl::Positional,
@@ -16,11 +51,14 @@ int main(int argc, const char **argv)
 
   Lexer Lex(Input);
   Token tok;
-  Lex.next(tok);
-  while (!tok.is(Token::TokenKind::EOI))
+  Parser Parser(Lex);
+  AST *ast = Parser.parse();
+  if (Parser.hasError() || !ast)
   {
-    llvm::outs() << "Token: " << static_cast<int>(tok.getKind()) << " " << tok.getText() << "\n";
-    Lex.next(tok);
+    llvm::errs() << "Error parsing input\n";
+    return 1;
   }
+  ASTPrinter astPrinter;
+  ast->accept(astPrinter);
   return 0;
 }
