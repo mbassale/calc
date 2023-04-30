@@ -66,7 +66,8 @@ public:
     Plus,
     Minus,
     Mul,
-    Div
+    Div,
+    Power,
   };
 
 private:

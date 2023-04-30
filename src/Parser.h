@@ -40,6 +40,7 @@ private:
   AST *parseCalc();
   Expr *parseExpr();
   Expr *parseTerm();
+  Expr *parseFunctions();
   Expr *parseFactor();
 
 public:

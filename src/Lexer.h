@@ -20,6 +20,7 @@ public:
     PLUS,
     MINUS,
     STAR,
+    POWER,
     SLASH,
     LPAREN,
     RPAREN,

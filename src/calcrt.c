@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 void calc_write(int v) {
   printf("The result is: %d\n", v);
@@ -15,4 +16,8 @@ int calc_read(char *s) {
     exit(1);
   }
   return val;
+}
+
+int calc_pow(int a, int b) {
+  return (int)pow(a, b);
 }

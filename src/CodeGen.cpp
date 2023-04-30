@@ -18,6 +18,7 @@ namespace
     Type *Int8PtrTy;
     Type *Int8PtrPtrTy;
     Constant *Int32Zero;
+    Type *DoubleTy;
     Value *V;
     StringMap<Value *> nameMap;
 
@@ -47,34 +48,47 @@ namespace
       Node.getExpr()->accept(*this);
     }
 
-    virtual void visit(Factor &Node) override {
-      if (Node.getKind() == Factor::Ident) {
+    virtual void visit(Factor &Node) override
+    {
+      if (Node.getKind() == Factor::Ident)
+      {
         V = nameMap[Node.getValue()];
-      } else {
+      }
+      else
+      {
         int intval;
         Node.getValue().getAsInteger(10, intval);
         V = ConstantInt::get(Int32Ty, intval, true);
       }
     }
 
-    virtual void visit(BinaryOp &Node) override {
+    virtual void visit(BinaryOp &Node) override
+    {
       Node.getLeft()->accept(*this);
       Value *Left = V;
       Node.getRight()->accept(*this);
       Value *Right = V;
-      switch (Node.getOp()) {
-        case BinaryOp::Plus:
-          V = Builder.CreateNSWAdd(Left, Right);
-          break;
-        case BinaryOp::Minus:
-          V = Builder.CreateNSWSub(Left, Right);
-          break;
-        case BinaryOp::Mul:
-          V = Builder.CreateNSWMul(Left, Right);
-          break;
-        case BinaryOp::Div:
-          V = Builder.CreateSDiv(Left, Right);
-          break;
+      switch (Node.getOp())
+      {
+      case BinaryOp::Plus:
+        V = Builder.CreateNSWAdd(Left, Right);
+        break;
+      case BinaryOp::Minus:
+        V = Builder.CreateNSWSub(Left, Right);
+        break;
+      case BinaryOp::Mul:
+        V = Builder.CreateNSWMul(Left, Right);
+        break;
+      case BinaryOp::Div:
+        V = Builder.CreateSDiv(Left, Right);
+        break;
+      case BinaryOp::Power:
+      {
+        FunctionType *PowFty = FunctionType::get(Int32Ty, {Int32Ty, Int32Ty}, false);
+        Function *PowFn = Function::Create(PowFty, GlobalValue::ExternalLinkage, "calc_pow", M);
+        V = Builder.CreateCall(PowFn, {Left, Right});
+        break;
+      }
       }
     }
 

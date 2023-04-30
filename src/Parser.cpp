@@ -34,14 +34,26 @@ Expr *Parser::parseFactor()
   return Res;
 }
 
-Expr *Parser::parseTerm()
+Expr *Parser::parseFunctions()
 {
   Expr *left = parseFactor();
+  while (Tok.is(Token::TokenKind::POWER))
+  {
+    advance();
+    Expr *right = parseFactor();
+    left = new BinaryOp(BinaryOp::Power, left, right);
+  }
+  return left;
+}
+
+Expr *Parser::parseTerm()
+{
+  Expr *left = parseFunctions();
   while (Tok.isOneOf(Token::TokenKind::STAR, Token::TokenKind::SLASH))
   {
     BinaryOp::Operator Op = Tok.is(Token::TokenKind::STAR) ? BinaryOp::Mul : BinaryOp::Div;
     advance();
-    Expr *right = parseFactor();
+    Expr *right = parseFunctions();
     left = new BinaryOp(Op, left, right);
   }
   return left;

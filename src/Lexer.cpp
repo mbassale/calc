@@ -66,6 +66,7 @@ void Lexer::next(Token &token)
       CASE(')', Token::TokenKind::RPAREN);
       CASE(':', Token::TokenKind::COLON);
       CASE(',', Token::TokenKind::COMMA);
+      CASE('^', Token::TokenKind::POWER);
 #undef CASE
     default:
       formToken(token, BufferPtr + 1, Token::TokenKind::UNKNOWN);
