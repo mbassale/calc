@@ -7,5 +7,7 @@ add_executable (calc
   AST.h
   Sema.h
   Sema.cpp
+  CodeGen.h
+  CodeGen.cpp
   )
 target_link_libraries(calc PRIVATE ${llvm_libs})

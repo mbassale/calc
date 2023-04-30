@@ -1,6 +1,7 @@
 #include "Lexer.h"
 #include "Parser.h"
 #include "Sema.h"
+#include "CodeGen.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/InitLLVM.h"
 #include "llvm/Support/raw_ostream.h"
@@ -66,13 +67,15 @@ int main(int argc, const char **argv)
     llvm::errs() << "Error parsing input\n";
     return 1;
   }
-  ASTPrinter astPrinter;
-  ast->accept(astPrinter);
+  // ASTPrinter astPrinter;
+  // ast->accept(astPrinter);
   Sema Sema;
   if (Sema.semantic(ast))
   {
     llvm::errs() << "Semantic error\n";
     return 1;
   }
+  CodeGen CodeGenerator;
+  CodeGenerator.compile(ast);
   return 0;
 }
