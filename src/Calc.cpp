@@ -1,5 +1,6 @@
 #include "Lexer.h"
 #include "Parser.h"
+#include "Sema.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/InitLLVM.h"
 #include "llvm/Support/raw_ostream.h"
@@ -22,18 +23,25 @@ public:
   void visit(BinaryOp &binOp) override
   {
     llvm::outs() << "BinaryOp: " << (int)binOp.getOp() << "\n";
-    auto* left = binOp.getLeft();
-    if (left) {
+    auto *left = binOp.getLeft();
+    if (left)
+    {
       left->accept(*this);
     }
-    auto* right = binOp.getRight();
-    if (right) {
+    auto *right = binOp.getRight();
+    if (right)
+    {
       right->accept(*this);
     }
   }
   void visit(WithDecl &withDecl) override
   {
-    llvm::outs() << "WithDecl\n";
+    llvm::outs() << "WithDecl: ";
+    for (auto I = withDecl.begin(), E = withDecl.end(); I != E; ++I)
+    {
+      llvm::outs() << *I << " ";
+    }
+    llvm::outs() << "\n";
     withDecl.getExpr()->accept(*this);
   }
 };
@@ -60,5 +68,11 @@ int main(int argc, const char **argv)
   }
   ASTPrinter astPrinter;
   ast->accept(astPrinter);
+  Sema Sema;
+  if (Sema.semantic(ast))
+  {
+    llvm::errs() << "Semantic error\n";
+    return 1;
+  }
   return 0;
 }
